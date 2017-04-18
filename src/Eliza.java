@@ -4,72 +4,74 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class Eliza {
-	public static void main(String[] args){
-		
-		ArrayList<String> hedgeList = new ArrayList<String>();
+	static ArrayList<String> hedgeList = new ArrayList<String>();
+	static ArrayList<String> qualifierList = new ArrayList<String>();
+	static HashMap<String,String> replacementMap = new HashMap<String,String>();
+	
+	public Eliza(){
+		//constructor is a good place to initialize stuff	
 		hedgeList.add("Please tell me more");
 		hedgeList.add("Many of my patients tell me the same thing");
 		hedgeList.add("It is getting late, maybe we had better quit");
-
-		ArrayList<String> qualifierList = new ArrayList<String>();		
-	    qualifierList.add("Why do you say that ");
-	    qualifierList.add("You seem to think that ");
-	    qualifierList.add("So, you are concerned that ");
 	
-		HashMap<String,String> replacementMap = new HashMap<String,String>();
+	    qualifierList.add("Why do you say that");
+	    qualifierList.add("You seem to think that");
+	    qualifierList.add("So, you are concerned that");
+
 		replacementMap.put("i", "you");
 		replacementMap.put("me","you");
 		replacementMap.put("my","your");
+	}
+	
+	public String prompt(){
+		return "Enter your response for Eliza: ";
+	}
+	
+	public String generateReply(String response){
+		//use scanner object to break the response into words
 		
-		System.out.println("Welcome. My name is Eliza. I am here to help you.");
-		System.out.println("What is the problem I can help you with?");
-		
-		System.out.println("Enter your response for Eliza: ");
-		@SuppressWarnings("resource")//hides warning since I'm not closing the scanner
-		Scanner keyboard = new Scanner(System.in);
-		String response = keyboard.nextLine();
-		
-		//determine if you use a qualifier or a hedge
-		//just decide that 0 gives a hedge, 1 gives a qualifier
-		if(getRandomInt(0,1)==0){
+		String reply = "";
+		//pick a random number from 1 to 100 then
+		//it will be less than 34 which 1/3 of the time
+		//so at that point select a random hedge
+		//otherwise select a random qualifier and replace words in the user's response
+		int hedgeOrQualifier = getRandomInt(1,100);
+		if (response.trim().length()==0){
+			reply = "Take your time... some things are difficult to express.";
+		}else if(hedgeOrQualifier < 34){
 			//get random hedge
-			int x = getRandomInt(0,2);
-			System.out.println(hedgeList.get(x));
+			int x = getRandomInt(1,3);
+			reply = hedgeList.get(x-1);
 		}else{
 			//get random qualifier
 			int x = getRandomInt(0,2);
-			System.out.println(qualifierList.get(x));
+			String qual = qualifierList.get(x);
+			String replacement = getReplacement(response);
+			reply = qual + " " + replacement;
 		}
-		
-		
-		
-		
-		
-		//use another scanner object to break the response into words
+
+		return reply;
+	}
+	
+	private String getReplacement(String response){
+		String result = "";
 		@SuppressWarnings("resource")
 		Scanner words = new Scanner(response);
-		String result = "";
-		
-		while (words.hasNext()){
-			
+		while (words.hasNext()){	
 			String keyword  = words.next();
 			keyword = keyword.toLowerCase();
-			
+
 			if (replacementMap.containsKey(keyword)){
 				result = result + ' ' + replacementMap.get(keyword);
 			}else{
 				result = result + ' ' + keyword;
 			}
-			
 		}
-
-		System.out.print("Why do you say that ");
-		System.out.println(result);
-		
+		return result;
 	}
-	private static int getRandomInt(int lo, int hi){
+	private static int getRandomInt(int min, int max){
 		Random r = new Random();
-		return lo + r.nextInt(hi);
+		return min + r.nextInt(max - min + 1);
 	}
 
 }
